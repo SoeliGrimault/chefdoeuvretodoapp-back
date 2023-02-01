@@ -1,1 +1,3 @@
-export class CreateChildDto {}
+export class CreateChildDto {
+  name: string;
+}

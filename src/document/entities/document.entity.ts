@@ -12,8 +12,8 @@ export class Document {
   name: string;
 
   @Column({
-    nullable: true,
+    nullable: false,
     unique: true,
   })
-  picture?: string;
+  picture: string;
 }
