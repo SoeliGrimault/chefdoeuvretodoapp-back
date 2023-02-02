@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Document } from 'src/document/entities/document.entity';
+import { Event } from 'src/event/entities/event.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 //4-generation des entités//
 @Entity()
@@ -13,4 +15,10 @@ export class Category {
     unique: true,
   })
   name: string;
+
+  @OneToMany(() => Document, (doc) => doc.category, { eager: false })
+  documents: Document[];
+
+  @OneToMany(() => Event, (evt) => evt.category, { eager: false })
+  event: Event;
 }

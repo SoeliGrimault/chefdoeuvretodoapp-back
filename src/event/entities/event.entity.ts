@@ -1,4 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from 'src/category/entities/category.entity';
+import { Child } from 'src/children/entities/child.entity';
+import { Document } from 'src/document/entities/document.entity';
+import { User } from 'src/user/entities/user.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Event {
@@ -40,4 +51,14 @@ export class Event {
     nullable: true,
   })
   description?: string;
+
+  @ManyToOne(() => Category, (cat) => cat.event, { eager: true })
+  category: Category;
+
+  @ManyToOne(() => User, (usr) => usr.event, { eager: true })
+  organisateur: User;
+
+  @ManyToMany(() => Child, { eager: true, cascade: true })
+  @JoinTable()
+  participants: Child[];
 }

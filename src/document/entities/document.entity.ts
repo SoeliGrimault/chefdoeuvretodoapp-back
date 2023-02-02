@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from 'src/category/entities/category.entity';
+import { User } from 'src/user/entities/user.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Document {
@@ -16,4 +18,10 @@ export class Document {
     unique: true,
   })
   picture: string;
+
+  @ManyToOne(() => Category, (cat) => cat.documents, { eager: true })
+  category: Category;
+
+  @ManyToOne(() => User, (usr) => usr.document, { eager: true })
+  user: User;
 }

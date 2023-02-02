@@ -1,4 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Child } from 'src/children/entities/child.entity';
+import { Document } from 'src/document/entities/document.entity';
+import { Event } from 'src/event/entities/event.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum RoleEnumType {
   USER = 'user',
@@ -40,4 +43,13 @@ export class User {
     default: RoleEnumType.USER,
   })
   role: RoleEnumType;
+
+  @OneToMany(() => Document, (doc) => doc.user, { eager: false })
+  document: Document;
+
+  @OneToMany(() => Event, (evt) => evt.organisateur, { eager: false })
+  event: Event;
+
+  @OneToMany(() => Child, (children) => children.parent, { eager: false })
+  children: Child;
 }
