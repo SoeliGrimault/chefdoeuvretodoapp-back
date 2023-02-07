@@ -58,7 +58,7 @@ export class Event {
   @ManyToOne(() => User, (usr) => usr.event, { eager: true })
   organisateur: User;
 
-  @ManyToMany(() => Child, { eager: true, cascade: true })
+  @ManyToMany(() => Child, { eager: true })
   @JoinTable()
   participants: Child[];
 }

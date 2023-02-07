@@ -1,3 +1,5 @@
+import { Category } from 'src/category/entities/category.entity';
+
 export class UpdateEventDto {
   name: string;
   address: string;
@@ -6,4 +8,5 @@ export class UpdateEventDto {
   date: string;
   time: string;
   description: string;
+  category?: Category;
 }

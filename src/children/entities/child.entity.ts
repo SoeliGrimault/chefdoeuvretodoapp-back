@@ -1,4 +1,5 @@
 import { Document } from 'src/document/entities/document.entity';
+import { Event } from 'src/event/entities/event.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -23,7 +24,10 @@ export class Child {
   @ManyToOne(() => User, (usr) => usr.children, { eager: true })
   parent: User;
 
-  @ManyToMany(() => Document, { eager: false, cascade: true })
+  @ManyToMany(() => Document, { eager: true })
   @JoinTable()
   documents: Document[];
+
+  @ManyToMany(() => Event, { eager: false })
+  events: Event[];
 }
