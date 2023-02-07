@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -17,6 +19,8 @@ export class CategoryController {
 
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
+    if (!createCategoryDto.name)
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
     return this.categoryService.create(createCategoryDto);
   }
 
@@ -25,21 +29,23 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  @Get(':name')
+  findOne(@Param('name') name: string) {
+    return this.categoryService.findOne(name);
   }
 
-  @Patch(':id')
+  @Patch(':name')
   update(
-    @Param('id') id: string,
+    @Param('name') name: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoryService.update(+id, updateCategoryDto);
+    if (!updateCategoryDto.name)
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+    return this.categoryService.update(name, updateCategoryDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(+id);
+  @Delete(':name')
+  remove(@Param('name') name: string) {
+    return this.categoryService.remove(name);
   }
 }

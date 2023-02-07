@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -15,19 +15,39 @@ export class CategoryService {
     return await this.categoryRepository.save(createCategoryDto);
   }
 
-  findAll() {
-    return `This action returns all category`;
+  async findAll(): Promise<Category[]> {
+    return await this.categoryRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(name: string): Promise<Category> {
+    const categoryFound = await this.categoryRepository.findOneBy({ name });
+    if (!categoryFound) {
+      throw new NotFoundException(
+        `Il n'y a pas de categorie avec le nom : ${name} essaye encore!!!`,
+      );
+    }
+    return categoryFound;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(
+    name: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category> {
+    const upCategory = await this.findOne(name);
+    upCategory.name = updateCategoryDto.name;
+    if (!upCategory) {
+      throw new NotFoundException(
+        `Il n'y a pas de categorie avec le nom: ${name}`,
+      );
+    }
+    return await this.categoryRepository.save(upCategory);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(name: string): Promise<string> {
+    const resultRemove = await this.categoryRepository.delete({ name });
+    if (resultRemove.affected === 0) {
+      throw new NotFoundException(`pas de category ${name} trouvée.`);
+    }
+    return `La catégorie ${name} a été supprimée correctement `;
   }
 }
