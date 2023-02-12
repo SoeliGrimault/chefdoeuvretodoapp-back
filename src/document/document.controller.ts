@@ -8,12 +8,16 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/roles.guard';
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 
 @Controller('document')
+@UseGuards(AuthGuard(), RolesGuard)
 export class DocumentController {
   constructor(private readonly documentService: DocumentService) {}
 

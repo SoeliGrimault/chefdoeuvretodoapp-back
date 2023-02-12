@@ -4,7 +4,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { Event } from './entities/event.entity';
+import { Event } from 'src/event/entities/event.entity';
 
 @Injectable()
 export class EventService {
@@ -47,7 +47,6 @@ export class EventService {
       time,
       description,
       category,
-      participants,
     } = updateEventDto;
 
     upEvent.name = name;
@@ -58,7 +57,7 @@ export class EventService {
     upEvent.time = time;
     upEvent.description = description;
     upEvent.category = category;
-    upEvent.participants = participants;
+
     if (!upEvent) {
       throw new NotFoundException(`pas d'event avec cet id: ${id}`);
     }

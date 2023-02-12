@@ -21,7 +21,7 @@ export class Child {
   })
   name: string;
 
-  @ManyToOne(() => User, (usr) => usr.children, { eager: true })
+  @ManyToOne(() => User, (parent) => parent.children, { eager: true })
   parent: User;
 
   @ManyToMany(() => Document, { eager: true })

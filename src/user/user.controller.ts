@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -17,8 +16,10 @@ import { RoleEnumType, User } from './entities/user.entity';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { GetUser } from 'src/auth/get-user.decorator';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
+@UseGuards(AuthGuard(), RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -38,7 +39,7 @@ export class UserController {
   findCreatedEvents(@Param('id') userId: string) {
     return this.userService.findCreatedEvents(userId);
   }
-  @Get('children/parent/:id')
+  @Get('user/parent/:id')
   findCreatedChild(@Param('id') userId: string) {
     return this.userService.findCreatedChild(userId);
   }

@@ -20,7 +20,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
   async register(createAuthDto: CreateAuthDto) {
-    const { email, password } = createAuthDto;
+    const { email, password, name, role } = createAuthDto;
 
     //je HacheMenu le mot de passe
     //je met le sel
@@ -32,6 +32,8 @@ export class AuthService {
     const user = this.userRepository.create({
       email,
       password: hachedPassword,
+      name,
+      role,
     });
 
     try {
@@ -44,6 +46,7 @@ export class AuthService {
       if (error.code === '23505') {
         throw new ConflictException('cette email existe deja dans la BDD');
       } else {
+        console.log('error c quoi ce bordel', error);
         throw new InternalServerErrorException();
       }
     }

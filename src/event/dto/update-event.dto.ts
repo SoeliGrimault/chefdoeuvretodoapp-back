@@ -1,6 +1,5 @@
 import { Matches } from 'class-validator';
 import { Category } from 'src/category/entities/category.entity';
-import { Child } from 'src/children/entities/child.entity';
 
 export class UpdateEventDto {
   @Matches(/^[a-zA-ZÀ-ÿ]+.*$/, {

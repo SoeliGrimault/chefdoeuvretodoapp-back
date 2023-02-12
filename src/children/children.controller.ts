@@ -8,12 +8,16 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/roles.guard';
 import { ChildrenService } from './children.service';
 import { CreateChildDto } from './dto/create-child.dto';
 import { UpdateChildDto } from './dto/update-child.dto';
 
 @Controller('children')
+@UseGuards(AuthGuard(), RolesGuard)
 export class ChildrenController {
   constructor(private readonly childrenService: ChildrenService) {}
 

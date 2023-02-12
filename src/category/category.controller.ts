@@ -19,12 +19,13 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Controller('category')
+@UseGuards(AuthGuard())
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  // @UseGuards(AuthGuard(), RolesGuard)
-  // @Roles(RoleEnumType.ADMIN)
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Roles(RoleEnumType.ADMIN)
   create(@Body() createCategoryDto: CreateCategoryDto) {
     if (!createCategoryDto.name)
       throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);

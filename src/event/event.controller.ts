@@ -8,18 +8,26 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { User } from 'src/user/entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/get-user.decorator';
 
 @Controller('event')
+@UseGuards(AuthGuard())
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Post()
-  create(@Body() createEventDto: CreateEventDto, organisateur: User) {
+  create(
+    @Body()
+    createEventDto: CreateEventDto,
+    @GetUser() organisateur: User,
+  ) {
     if (
       !createEventDto.name ||
       !createEventDto.date ||
@@ -50,8 +58,7 @@ export class EventController {
       !updateEventDto.date &&
       !updateEventDto.time &&
       !updateEventDto.description &&
-      !updateEventDto.category &&
-      !updateEventDto.participants
+      !updateEventDto.category
     )
       throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
     return this.eventService.update(id, updateEventDto);
