@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ChildrenService } from './children.service';
 import { CreateChildDto } from './dto/create-child.dto';
@@ -17,6 +19,8 @@ export class ChildrenController {
 
   @Post()
   create(@Body() createChildDto: CreateChildDto) {
+    if (!createChildDto.name)
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
     return this.childrenService.create(createChildDto);
   }
 
@@ -25,18 +29,20 @@ export class ChildrenController {
     return this.childrenService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.childrenService.findOne(+id);
+  @Get(':name')
+  findOne(@Param('name') name: string) {
+    return this.childrenService.findOne(name);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChildDto: UpdateChildDto) {
-    return this.childrenService.update(+id, updateChildDto);
+  @Patch(':name')
+  update(@Param('name') name: string, @Body() updateChildDto: UpdateChildDto) {
+    if (!updateChildDto.name)
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    return this.childrenService.update(name, updateChildDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.childrenService.remove(+id);
+  @Delete(':name')
+  remove(@Param('name') name: string) {
+    return this.childrenService.remove(name);
   }
 }

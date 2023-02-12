@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
@@ -9,6 +19,8 @@ export class DocumentController {
 
   @Post()
   create(@Body() createDocumentDto: CreateDocumentDto) {
+    if (!createDocumentDto.name)
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
     return this.documentService.create(createDocumentDto);
   }
 
@@ -17,18 +29,23 @@ export class DocumentController {
     return this.documentService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.documentService.findOne(+id);
+  @Get(':name')
+  findOne(@Param('name') name: string) {
+    return this.documentService.findOne(name);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDocumentDto: UpdateDocumentDto) {
-    return this.documentService.update(+id, updateDocumentDto);
+  @Patch(':name')
+  update(
+    @Param('name') name: string,
+    @Body() updateDocumentDto: UpdateDocumentDto,
+  ) {
+    if (!updateDocumentDto.name)
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+    return this.documentService.update(name, updateDocumentDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.documentService.remove(+id);
+  @Delete(':name')
+  remove(@Param('name') name: string) {
+    return this.documentService.remove(name);
   }
 }

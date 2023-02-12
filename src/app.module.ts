@@ -13,6 +13,7 @@ import { Child } from './children/entities/child.entity';
 import { Document } from './document/entities/document.entity';
 import { Event } from './event/entities/event.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 
 dotenv.config({
   path: '.env',
@@ -35,6 +36,7 @@ dotenv.config({
     ChildrenModule,
     DocumentModule,
     CategoryModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

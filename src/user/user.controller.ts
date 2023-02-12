@@ -1,34 +1,69 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+
 import { UpdateUserDto } from './dto/update-user.dto';
+import { RoleEnumType, User } from './entities/user.entity';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { GetUser } from 'src/auth/get-user.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnumType.ADMIN)
   findAll() {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @Get(':email')
+  findOne(@Param('email') email: string) {
+    return this.userService.findOne(email);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @Get('event/organisateur/:id')
+  findCreatedEvents(@Param('id') userId: string) {
+    return this.userService.findCreatedEvents(userId);
+  }
+  @Get('children/parent/:id')
+  findCreatedChild(@Param('id') userId: string) {
+    return this.userService.findCreatedChild(userId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @Patch(':email')
+  update(
+    @Param('email') email: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @GetUser() connectedUser: User,
+  ) {
+    if (
+      !updateUserDto.email &&
+      !updateUserDto.password &&
+      !updateUserDto.name &&
+      !updateUserDto.picture &&
+      !updateUserDto.role
+    )
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+    return this.userService.patch(email, updateUserDto, connectedUser);
+  }
+
+  @Delete(':email')
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnumType.ADMIN)
+  remove(@Param('email') email: string) {
+    return this.userService.remove(email);
   }
 }

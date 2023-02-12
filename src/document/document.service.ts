@@ -1,26 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
+import { Document } from './entities/document.entity';
 
 @Injectable()
 export class DocumentService {
-  create(createDocumentDto: CreateDocumentDto) {
-    return 'This action adds a new document';
+  constructor(
+    @InjectRepository(Document)
+    private documentRepository: Repository<Document>,
+  ) {}
+  async create(createDocumentDto: CreateDocumentDto): Promise<Document> {
+    return await this.documentRepository.save(createDocumentDto);
   }
 
-  findAll() {
-    return `This action returns all document`;
+  async findAll(): Promise<Document[]> {
+    return await this.documentRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} document`;
+  async findOne(name: string): Promise<Document> {
+    const documentFound = await this.documentRepository.findOneBy({ name });
+    if (!documentFound) {
+      throw new NotFoundException(`il n'y a pas de doc avec ce nom ${name}`);
+    }
+    return documentFound;
   }
 
-  update(id: number, updateDocumentDto: UpdateDocumentDto) {
-    return `This action updates a #${id} document`;
+  async update(
+    name: string,
+    updateDocumentDto: UpdateDocumentDto,
+  ): Promise<Document> {
+    const upDocument = await this.findOne(name);
+    upDocument.name = updateDocumentDto.name;
+    if (!upDocument) {
+      throw new NotFoundException(`pas de docum ${name}`);
+    }
+    return await this.documentRepository.save(upDocument);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} document`;
+  async remove(name: string): Promise<string> {
+    const resultRemove = await this.documentRepository.delete({ name });
+    if (resultRemove.affected === 0) {
+      throw new NotFoundException(`pas de doc ${name}`);
+    }
+    return `This action removes ${name} document`;
   }
 }
