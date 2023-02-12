@@ -1,4 +1,4 @@
-import { IsInt, Matches, Max, Min } from 'class-validator';
+import { Matches } from 'class-validator';
 import { Category } from 'src/category/entities/category.entity';
 import { User } from 'src/user/entities/user.entity';
 
