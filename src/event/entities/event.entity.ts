@@ -18,24 +18,24 @@ export class Event {
 
   @Column({
     nullable: false,
-    unique: true,
+    unique: false,
   })
   name: string;
 
   @Column({
     nullable: true,
   })
-  address?: string;
+  address: string;
 
   @Column({
     nullable: true,
   })
-  postalCode?: string;
+  postalCode: string;
 
   @Column({
     nullable: true,
   })
-  city?: string;
+  city: string;
 
   @Column({
     nullable: false,
@@ -50,7 +50,7 @@ export class Event {
   @Column({
     nullable: true,
   })
-  description?: string;
+  description: string;
 
   @ManyToOne(() => Category, (cat) => cat.event, { eager: true })
   category: Category;
@@ -58,7 +58,10 @@ export class Event {
   @ManyToOne(() => User, (usr) => usr.event, { eager: true })
   organisateur: User;
 
-  @ManyToMany(() => Child, { eager: true })
+  @ManyToMany(() => Child, (child) => child.events, {
+    eager: true,
+    cascade: true,
+  })
   @JoinTable()
   participants: Child[];
 }

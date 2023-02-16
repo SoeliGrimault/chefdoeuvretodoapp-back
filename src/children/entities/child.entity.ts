@@ -17,17 +17,25 @@ export class Child {
 
   @Column({
     nullable: false,
-    unique: true,
+    unique: false,
   })
   name: string;
+
+  @Column({
+    nullable: true,
+  })
+  eventId: string;
 
   @ManyToOne(() => User, (parent) => parent.children, { eager: true })
   parent: User;
 
-  @ManyToMany(() => Document, { eager: true })
+  @ManyToMany(() => Document, (document) => document.children, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
   @JoinTable()
   documents: Document[];
 
-  @ManyToMany(() => Event, { eager: false })
+  @ManyToMany(() => Event, (event) => event.participants, { eager: false })
   events: Event[];
 }

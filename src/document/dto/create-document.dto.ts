@@ -1,6 +1,7 @@
-import { Matches } from 'class-validator';
+import { Matches, IsOptional } from 'class-validator';
 
 import { Category } from 'src/category/entities/category.entity';
+import { Child } from 'src/children/entities/child.entity';
 import { User } from 'src/user/entities/user.entity';
 
 export class CreateDocumentDto {
@@ -9,6 +10,9 @@ export class CreateDocumentDto {
   })
   name: string;
   picture: string;
-  category?: Category;
-  user?: User;
+  category: Category;
+  user: User;
+  @IsOptional()
+  children: Child[];
+  // la je met children ou pas?
 }

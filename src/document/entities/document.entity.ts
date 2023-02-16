@@ -16,15 +16,20 @@ export class Document {
 
   @Column({
     nullable: false,
-    unique: true,
+    unique: false,
   })
   name: string;
 
   @Column({
     nullable: true,
-    unique: true,
+    unique: false,
   })
   picture: string;
+
+  @Column({
+    nullable: true,
+  })
+  childId: string;
 
   @ManyToOne(() => Category, (cat) => cat.documents, { eager: true })
   category: Category;
@@ -32,6 +37,6 @@ export class Document {
   @ManyToOne(() => User, (usr) => usr.document, { eager: true })
   user: User;
 
-  @ManyToMany(() => Child, { eager: false })
+  @ManyToMany(() => Child, (child) => child.documents, { eager: false })
   children: Child[];
 }

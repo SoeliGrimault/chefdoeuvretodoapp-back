@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -14,61 +18,79 @@ export class EventService {
   ) {}
   async create(
     createEventDto: CreateEventDto,
-    organisateur: User,
+    connectedUser: User,
   ): Promise<Event> {
     // on integre notre organisateur a l'event
     const eventCreation = {
       ...createEventDto,
-      organisateur,
+      organisateur: connectedUser,
     };
     return await this.eventRepository.save(eventCreation);
   }
 
-  async findAll(): Promise<Event[]> {
-    return await this.eventRepository.find();
-  }
-
-  async findOne(id: string): Promise<Event> {
-    const eventFound = await this.eventRepository.findOneBy({ id });
-    if (!eventFound) {
-      throw new NotFoundException(`pas d'event avec l'id : ${id}`);
+  async findAll(connectedUser: User): Promise<Event[]> {
+    const eventFound = await this.eventRepository.findBy({
+      organisateur: {
+        id: connectedUser.id,
+      },
+    });
+    if (eventFound.length === 0) {
+      throw new NotFoundException("pas d'event");
     }
     return eventFound;
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto): Promise<Event> {
-    const upEvent = await this.findOne(id);
-    const {
-      name,
-      address,
-      postalCode,
-      city,
-      date,
-      time,
-      description,
-      category,
-    } = updateEventDto;
-
-    upEvent.name = name;
-    upEvent.address = address;
-    upEvent.postalCode = postalCode;
-    upEvent.city = city;
-    upEvent.date = date;
-    upEvent.time = time;
-    upEvent.description = description;
-    upEvent.category = category;
-
-    if (!upEvent) {
-      throw new NotFoundException(`pas d'event avec cet id: ${id}`);
+  async findOne(id: string, connectedUser: User): Promise<Event> {
+    const eventFound = await this.eventRepository.findOneBy({ id });
+    if (!eventFound) {
+      throw new NotFoundException(`pas d'event avec l'id : ${id}`);
     }
-    return await this.eventRepository.save(upEvent);
+    if (
+      eventFound.organisateur.id !== connectedUser.id &&
+      connectedUser.role !== 'admin'
+    ) {
+      throw new UnauthorizedException(
+        ' vous ne pouvez pas consulter un event que vous avez pas creer',
+      );
+    }
+    return eventFound;
   }
 
-  async remove(id: string): Promise<string> {
-    const resultRemove = await this.eventRepository.delete({ id });
-    if (resultRemove.affected === 0) {
-      throw new NotFoundException(`pas de category ${name} trouvée.`);
+  async findAllEventByChild(childId: string): Promise<Event[]> {
+    const eventFound = await this.eventRepository.findBy({
+      participants: {
+        id: childId,
+      },
+    });
+    if (eventFound.length === 0) {
+      throw new NotFoundException("pas d'event");
     }
+    return eventFound;
+  }
+  async update(
+    id: string,
+    updateEventDto: UpdateEventDto,
+    connectedUser: User,
+  ): Promise<Event> {
+    const upEvent = await this.findOne(id, connectedUser);
+
+    upEvent.name = updateEventDto.name;
+    upEvent.address = updateEventDto.address;
+    upEvent.postalCode = updateEventDto.postalCode;
+    upEvent.city = updateEventDto.city;
+    upEvent.date = updateEventDto.date;
+    upEvent.time = updateEventDto.time;
+    upEvent.description = updateEventDto.description;
+    upEvent.category = updateEventDto.category;
+
+    await this.eventRepository.save(upEvent);
+    return await this.eventRepository.findOneBy({ id });
+  }
+
+  async remove(id: string, connectedUser: User): Promise<string> {
+    await this.findOne(id, connectedUser);
+    await this.eventRepository.delete({ id });
+
     return `l'event avec l'id ${id} à été supprimé`;
   }
 }

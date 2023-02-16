@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { Document } from './entities/document.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class DocumentService {
@@ -11,39 +16,62 @@ export class DocumentService {
     @InjectRepository(Document)
     private documentRepository: Repository<Document>,
   ) {}
-  async create(createDocumentDto: CreateDocumentDto): Promise<Document> {
-    return await this.documentRepository.save(createDocumentDto);
+  async create(
+    createDocumentDto: CreateDocumentDto,
+    connectedUser: User,
+  ): Promise<Document> {
+    const newDoc = {
+      ...createDocumentDto,
+      user: connectedUser,
+    };
+    return await this.documentRepository.save(newDoc);
   }
 
-  async findAll(): Promise<Document[]> {
-    return await this.documentRepository.find();
+  async findAll(connectedUser: User): Promise<Document[]> {
+    const docFound = await this.documentRepository.findBy({
+      user: {
+        id: connectedUser.id,
+      },
+    });
+    if (docFound.length === 0) {
+      throw new NotFoundException('pas de doc trouvé');
+    }
+    return docFound;
   }
 
-  async findOne(name: string): Promise<Document> {
-    const documentFound = await this.documentRepository.findOneBy({ name });
+  async findOne(id: string, connectedUser: User): Promise<Document> {
+    const documentFound = await this.documentRepository.findOneBy({ id });
     if (!documentFound) {
-      throw new NotFoundException(`il n'y a pas de doc avec ce nom ${name}`);
+      throw new NotFoundException(`il n'y a pas de doc avec ce nom ${id}`);
+    }
+    if (
+      documentFound.user.id !== connectedUser.id &&
+      connectedUser.role !== 'admin'
+    ) {
+      throw new UnauthorizedException(
+        'vous ne pouvez pas consulter un doc que vous avez pas creer',
+      );
     }
     return documentFound;
   }
 
   async update(
-    name: string,
+    id: string,
     updateDocumentDto: UpdateDocumentDto,
+    connectedUser: User,
   ): Promise<Document> {
-    const upDocument = await this.findOne(name);
+    const upDocument = await this.findOne(id, connectedUser);
     upDocument.name = updateDocumentDto.name;
-    if (!upDocument) {
-      throw new NotFoundException(`pas de docum ${name}`);
-    }
-    return await this.documentRepository.save(upDocument);
+    upDocument.category = updateDocumentDto.category;
+
+    await this.documentRepository.save(upDocument);
+    return await this.documentRepository.findOneBy({ id });
   }
 
-  async remove(name: string): Promise<string> {
-    const resultRemove = await this.documentRepository.delete({ name });
-    if (resultRemove.affected === 0) {
-      throw new NotFoundException(`pas de doc ${name}`);
-    }
-    return `This action removes ${name} document`;
+  async remove(id: string, connectedUser: User): Promise<string> {
+    await this.findOne(id, connectedUser);
+    await this.documentRepository.delete({ id });
+
+    return `This action removes ${id} document`;
   }
 }

@@ -7,9 +7,14 @@ import { Event } from 'src/event/entities/event.entity';
 import { Child } from 'src/children/entities/child.entity';
 import { AuthModule } from 'src/auth/auth.module';
 
+import { Document } from 'src/document/entities/document.entity';
+
 @Module({
   //1- importer dans toutes les entités le type orm module //
-  imports: [TypeOrmModule.forFeature([User, Event, Child]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Event, Child, Document]),
+    AuthModule,
+  ],
   controllers: [UserController],
   providers: [UserService],
 })

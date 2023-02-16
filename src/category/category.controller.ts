@@ -24,7 +24,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  @UseGuards(AuthGuard(), RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(RoleEnumType.ADMIN)
   create(@Body() createCategoryDto: CreateCategoryDto) {
     if (!createCategoryDto.name)
@@ -38,14 +38,12 @@ export class CategoryController {
   }
 
   @Get(':name')
-  @UseGuards(AuthGuard(), RolesGuard)
-  @Roles(RoleEnumType.ADMIN)
   findOne(@Param('name') name: string) {
     return this.categoryService.findOne(name);
   }
 
   @Patch(':name')
-  @UseGuards(AuthGuard(), RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(RoleEnumType.ADMIN)
   update(
     @Param('name') name: string,
@@ -57,7 +55,7 @@ export class CategoryController {
   }
 
   @Delete(':name')
-  @UseGuards(AuthGuard(), RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(RoleEnumType.ADMIN)
   remove(@Param('name') name: string) {
     return this.categoryService.remove(name);

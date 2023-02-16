@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateChildDto } from './dto/create-child.dto';
 import { UpdateChildDto } from './dto/update-child.dto';
@@ -14,40 +19,63 @@ export class ChildrenService {
     private childRepository: Repository<Child>,
   ) {}
   // a quoi sert la dependence?
-  async create(createChildDto: CreateChildDto): Promise<Child> {
-    return await this.childRepository.save(createChildDto);
+  async create(
+    createChildDto: CreateChildDto,
+    connectedUser: User,
+  ): Promise<Child> {
+    const newChild = { ...createChildDto, parent: connectedUser };
+    return await this.childRepository.save(newChild);
   }
 
-  async findAll(): Promise<Child[]> {
-    return await this.childRepository.find();
+  async findAll(connectedUser: User): Promise<Child[]> {
+    console.log('userconnected', connectedUser);
+    // je souhaite recuperer uniquement mes enfants
+    const childFound = await this.childRepository.findBy({
+      parent: {
+        id: connectedUser.id,
+      },
+    });
+    if (childFound.length === 0) {
+      throw new NotFoundException("pas d'enfant trouvé!");
+    }
+    return childFound;
   }
 
-  async findOne(name: string): Promise<Child> {
-    const childFound = await this.childRepository.findOneBy({ name });
+  async findOne(id: string, connectedUser: User): Promise<Child> {
+    const childFound = await this.childRepository.findOneBy({
+      id,
+    });
+
     if (!childFound) {
       throw new NotFoundException(
-        `Il n'y a pas d'enfant avec le nom : ${name}, tu peux en faire un pour dans 9 mois!!!`,
+        `Il n'y a pas d'enfant avec l'id: ${id}, tu peux en faire un pour dans 9 mois!!!`,
+      );
+    }
+
+    if (childFound.parent.id !== connectedUser.id) {
+      throw new UnauthorizedException(
+        'vous ne pouvez pas trouver un enfant pas a vous',
       );
     }
     return childFound;
   }
 
-  async update(name: string, updateChildDto: UpdateChildDto): Promise<Child> {
-    const upChild = await this.findOne(name);
+  async update(
+    id: string,
+    updateChildDto: UpdateChildDto,
+    connectedUser: User,
+  ): Promise<Child> {
+    const upChild = await this.findOne(id, connectedUser);
+
     upChild.name = updateChildDto.name;
-    if (!upChild) {
-      throw new NotFoundException(
-        `Il n'y a pas d'enfant avec le nom: ${name}, je ne peux pas l'updater!`,
-      );
-    }
     return await this.childRepository.save(upChild);
   }
 
-  async remove(name: string): Promise<string> {
-    const resultRemove = await this.childRepository.delete({ name });
-    if (resultRemove.affected === 0) {
-      throw new NotFoundException(`pas d'enfant avec ce nom la: ${name}! oops`);
-    }
-    return `tu as supprimé ${name} correctement`;
+  async remove(id: string, connectedUser: User): Promise<string> {
+    await this.findOne(id, connectedUser);
+
+    await this.childRepository.delete({ id });
+
+    return `tu as supprimé ${id} correctement`;
   }
 }

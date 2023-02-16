@@ -16,6 +16,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { User } from 'src/user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('event')
 @UseGuards(AuthGuard())
@@ -26,7 +27,7 @@ export class EventController {
   create(
     @Body()
     createEventDto: CreateEventDto,
-    @GetUser() organisateur: User,
+    @GetUser() connectedUser: User,
   ) {
     if (
       !createEventDto.name ||
@@ -35,21 +36,29 @@ export class EventController {
       !createEventDto.category
     )
       throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-    return this.eventService.create(createEventDto, organisateur);
+    return this.eventService.create(createEventDto, connectedUser);
   }
 
   @Get()
-  findAll() {
-    return this.eventService.findAll();
+  findAll(@GetUser() connectedUser: User) {
+    return this.eventService.findAll(connectedUser);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventService.findOne(id);
+  findOne(@Param('id') id: string, @GetUser() connectedUser: User) {
+    return this.eventService.findOne(id, connectedUser);
+  }
+  @Get('child/:id')
+  findAllEventByChild(@Param('id') childId: string) {
+    return this.eventService.findAllEventByChild(childId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateEventDto: UpdateEventDto,
+    @GetUser() connectedUser: User,
+  ) {
     if (
       !updateEventDto.name &&
       !updateEventDto.address &&
@@ -61,11 +70,11 @@ export class EventController {
       !updateEventDto.category
     )
       throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-    return this.eventService.update(id, updateEventDto);
+    return this.eventService.update(id, updateEventDto, connectedUser);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventService.remove(id);
+  remove(@Param('id') id: string, @GetUser() connectedUser: User) {
+    return this.eventService.remove(id, connectedUser);
   }
 }

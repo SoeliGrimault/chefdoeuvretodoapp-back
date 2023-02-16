@@ -18,31 +18,43 @@ import { Roles } from 'src/auth/roles.decorator';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('user')
-@UseGuards(AuthGuard(), RolesGuard)
+@Controller('user') // /user
+@UseGuards(AuthGuard())
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  @UseGuards(RolesGuard)
-  @Roles(RoleEnumType.ADMIN)
+  @Get() // GET /user
+  @UseGuards(RolesGuard) // embauche un vigil sur cet accès
+  @Roles(RoleEnumType.ADMIN) // donne la liste des types invités autorisés
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':email')
-  findOne(@Param('email') email: string) {
-    return this.userService.findOne(email);
+  findOne(@Param('email') email: string, @GetUser() connectedUser: User) {
+    return this.userService.findOne(email, connectedUser);
   }
 
-  @Get('event/organisateur/:id')
-  findCreatedEvents(@Param('id') userId: string) {
-    return this.userService.findCreatedEvents(userId);
-  }
-  @Get('user/parent/:id')
-  findCreatedChild(@Param('id') userId: string) {
-    return this.userService.findCreatedChild(userId);
-  }
+  // @Get('event/organisateur/:id')
+  // findCreatedEvents(
+  //   @Param('id') userId: string,
+  //   @GetUser() connectedUser: User,
+  // ) {
+  //   return this.userService.findCreatedEvents(userId, connectedUser);
+  // }
+
+  // @Get('parent/:id')
+  // findCreatedChild(
+  //   @Param('id') userId: string,
+  //   @GetUser() connectedUser: User,
+  // ) {
+  //   return this.userService.findCreatedChild(userId, connectedUser);
+  // }
+
+  // @Get('document/user/:id')
+  // findCreatedDoc(@Param('id') userId: string, @GetUser() connectedUser: User) {
+  //   return this.userService.findCreatedDoc(userId, connectedUser);
+  // }
 
   @Patch(':email')
   update(
@@ -51,14 +63,13 @@ export class UserController {
     @GetUser() connectedUser: User,
   ) {
     if (
-      !updateUserDto.email &&
-      !updateUserDto.password &&
+      // !updateUserDto.email &&
+      // !updateUserDto.password &&
       !updateUserDto.name &&
-      !updateUserDto.picture &&
-      !updateUserDto.role
+      !updateUserDto.picture
     )
       throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-    return this.userService.patch(email, updateUserDto, connectedUser);
+    return this.userService.update(email, updateUserDto, connectedUser);
   }
 
   @Delete(':email')

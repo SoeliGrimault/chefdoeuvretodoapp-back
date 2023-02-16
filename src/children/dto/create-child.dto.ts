@@ -6,6 +6,5 @@ export class CreateChildDto {
     message: 'Le nom doit commencer par une lettre',
   })
   name: string;
-  parentId?: string;
-  userId: User;
+  parent: User;
 }
