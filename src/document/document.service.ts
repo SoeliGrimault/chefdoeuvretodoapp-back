@@ -54,6 +54,17 @@ export class DocumentService {
     }
     return documentFound;
   }
+  async findAllDocByChild(childId: string): Promise<Document[]> {
+    const docFound = await this.documentRepository.findBy({
+      children: {
+        id: childId,
+      },
+    });
+    if (docFound.length === 0) {
+      throw new NotFoundException('pas de doc Martins');
+    }
+    return docFound;
+  }
 
   async update(
     id: string,

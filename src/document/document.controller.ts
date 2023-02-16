@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
-import { RolesGuard } from 'src/auth/roles.guard';
+
 import { User } from 'src/user/entities/user.entity';
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
@@ -41,6 +41,11 @@ export class DocumentController {
   @Get(':id')
   findOne(@Param('id') id: string, @GetUser() connectedUser: User) {
     return this.documentService.findOne(id, connectedUser);
+  }
+
+  @Get('child/:id')
+  findAllDocByChild(@Param('id') childId: string) {
+    return this.documentService.findAllDocByChild(childId);
   }
 
   @Patch(':id')

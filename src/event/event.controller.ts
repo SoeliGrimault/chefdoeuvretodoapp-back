@@ -16,7 +16,6 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { User } from 'src/user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
-import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('event')
 @UseGuards(AuthGuard())
