@@ -23,6 +23,9 @@ export class ChildrenService {
     createChildDto: CreateChildDto,
     connectedUser: User,
   ): Promise<Child> {
+    console.log('connectedUser', connectedUser);
+    console.log('createchild', createChildDto);
+
     const newChild = { ...createChildDto, parent: connectedUser };
     return await this.childRepository.save(newChild);
   }
@@ -60,6 +63,16 @@ export class ChildrenService {
     return childFound;
   }
 
+  // async findChildUser(userId: string, connectedUser: User): Promise<Child[]> {
+  //   // On vérifie d'abord si le user existe
+  //   const userFound = await this.userRepository.findOneBy({ id: userId });
+  //   if (!userFound) {
+  //     throw new NotFoundException(`pas d'utilisateur avec l'id : ${userId}`);
+  //   }
+  //   const foundChild = await this.childRepository.findBy({ parent: userFound });
+
+  //   return foundChild;
+  // }
   async update(
     id: string,
     updateChildDto: UpdateChildDto,

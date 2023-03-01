@@ -44,12 +44,18 @@ export class User {
   })
   role: RoleEnumType;
 
-  @OneToMany(() => Document, (doc) => doc.user, { eager: false })
+  @OneToMany(() => Document, (doc) => doc.user, { eager: false, cascade: true })
   document: Document;
 
-  @OneToMany(() => Event, (evt) => evt.organisateur, { eager: false })
+  @OneToMany(() => Event, (evt) => evt.organisateur, {
+    eager: false,
+    cascade: true,
+  })
   event: Event;
 
-  @OneToMany(() => Child, (children) => children.parent, { eager: false })
+  @OneToMany(() => Child, (children) => children.parent, {
+    eager: false,
+    onDelete: 'CASCADE',
+  })
   children: Child;
 }

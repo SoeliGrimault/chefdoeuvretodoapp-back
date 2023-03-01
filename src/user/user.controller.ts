@@ -72,10 +72,13 @@ export class UserController {
     return this.userService.update(email, updateUserDto, connectedUser);
   }
 
+  // @Delete(':email')
+  // remove(@Param('email') email: string, @GetUser() connectedUser: User) {
+  //   return this.userService.remove(email, connectedUser);
+  // }
+
   @Delete(':email')
-  @UseGuards(RolesGuard)
-  @Roles(RoleEnumType.ADMIN)
-  remove(@Param('email') email: string) {
-    return this.userService.remove(email);
+  remove(@Param('email') email: string, @GetUser() connectedUser: User) {
+    return this.userService.remove(email, connectedUser);
   }
 }

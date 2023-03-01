@@ -1,6 +1,5 @@
 import {
   Injectable,
-  MethodNotAllowedException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,7 +8,7 @@ import { Child } from 'src/children/entities/child.entity';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from 'src/user/entities/user.entity';
-import * as bcrypt from 'bcrypt';
+
 import { Event } from 'src/event/entities/event.entity';
 import { Document } from 'src/document/entities/document.entity';
 
@@ -137,11 +136,17 @@ export class UserService {
     return await this.userRepository.findOneBy({ email });
   }
 
-  async remove(email: string): Promise<string> {
-    const result = await this.userRepository.delete({ email });
-    if (result.affected === 0) {
-      throw new NotFoundException(`Pas d'utilisateur avec l'email : ${email}`);
-    }
-    return `l'utilisateur avec l'email #${email} a disparu ! :o`;
+  // async remove(email: string): Promise<string> {
+  //   const result = await this.userRepository.delete({ email });
+  //   if (result.affected === 0) {
+  //     throw new NotFoundException(`Pas d'utilisateur avec l'email : ${email}`);
+  //   }
+  //   return `l'utilisateur avec l'email #${email} a disparu ! :o`;
+  // }
+  async remove(email: string, connectedUser: User): Promise<string> {
+    await this.findOne(email, connectedUser);
+    await this.userRepository.delete({ email });
+
+    return `This action removes ${email} peoplle`;
   }
 }

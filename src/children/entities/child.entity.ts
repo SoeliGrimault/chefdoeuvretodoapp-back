@@ -21,12 +21,10 @@ export class Child {
   })
   name: string;
 
-  @Column({
-    nullable: true,
+  @ManyToOne(() => User, (parent) => parent.children, {
+    eager: true,
+    onDelete: 'CASCADE',
   })
-  eventId: string;
-
-  @ManyToOne(() => User, (parent) => parent.children, { eager: true })
   parent: User;
 
   @ManyToMany(() => Document, (document) => document.children, {
@@ -36,6 +34,9 @@ export class Child {
   @JoinTable()
   documents: Document[];
 
-  @ManyToMany(() => Event, (event) => event.participants, { eager: false })
+  @ManyToMany(() => Event, (event) => event.participants, {
+    eager: false,
+    onDelete: 'CASCADE',
+  })
   events: Event[];
 }
