@@ -25,7 +25,8 @@ export class EventService {
       ...createEventDto,
       organisateur: connectedUser,
     };
-    return await this.eventRepository.save(eventCreation);
+    const newEventCreated = await this.eventRepository.save(eventCreation);
+    return await this.eventRepository.findOneBy({ id: newEventCreated.id });
   }
 
   async findAll(connectedUser: User): Promise<Event[]> {
@@ -34,9 +35,7 @@ export class EventService {
         id: connectedUser.id,
       },
     });
-    if (eventFound.length === 0) {
-      throw new NotFoundException("pas d'event");
-    }
+
     return eventFound;
   }
 

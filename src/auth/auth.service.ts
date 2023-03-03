@@ -58,6 +58,7 @@ export class AuthService {
     console.log('userrrrrr', user);
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      delete user.password;
       const payload = { user };
       // attention cette putain de ligne c'est ce qu'on recupère! du coup si que mail et ben que mail donc bien mettre USER
       const accessToken = this.jwtService.sign(payload);

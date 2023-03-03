@@ -1,5 +1,6 @@
 import { Matches, IsOptional } from 'class-validator';
 import { Category } from 'src/category/entities/category.entity';
+import { Child } from 'src/children/entities/child.entity';
 import { User } from 'src/user/entities/user.entity';
 
 export class CreateEventDto {
@@ -24,6 +25,7 @@ export class CreateEventDto {
   date: string;
 
   time: string;
+
   @IsOptional()
   @Matches(/^[a-zA-ZÀ-ÿ]+.*$/, {
     message: 'La description doit commencer par une lettre',
@@ -32,4 +34,5 @@ export class CreateEventDto {
 
   category: Category;
   organisateur: User;
+  participants: Child[];
 }

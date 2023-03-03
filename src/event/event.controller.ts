@@ -28,6 +28,7 @@ export class EventController {
     createEventDto: CreateEventDto,
     @GetUser() connectedUser: User,
   ) {
+    console.log('entrée dans controller');
     if (
       !createEventDto.name ||
       !createEventDto.date ||
